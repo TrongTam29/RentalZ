@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rentalz_app/constants.dart';
-import 'package:rentalz_app/screens/login/login_screen.dart';
+import 'package:rentalz_app/screens/exam.dart';
+import 'package:rentalz_app/screens/home%20screen/components/home.dart';
+import 'package:rentalz_app/screens/home%20screen/home_screen.dart';
+import 'package:rentalz_app/screens/input%20screen/input_screen.dart';
+import 'package:rentalz_app/screens/profile/profile.dart';
+import 'package:rentalz_app/screens/province.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +25,6 @@ class MyApp extends StatelessWidget {
             appBarTheme: const AppBarTheme(backgroundColor: kPrimaryColor),
             textTheme: Theme.of(context).textTheme.apply(bodyColor: kTextColor),
             visualDensity: VisualDensity.adaptivePlatformDensity),
-        home: const LoginScreen());
+        home: ProvinceSceen());
   }
 }
