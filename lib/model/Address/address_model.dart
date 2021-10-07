@@ -1,135 +1,156 @@
 // To parse this JSON data, do
 //
-//     final Province = ProvinceFromJson(jsonString);
+//     final province = provinceFromJson(jsonString);
 
 import 'dart:convert';
 
-List<Province> provinceFromJson(String str) =>
-    List<Province>.from(json.decode(str).map((x) => Province.fromJson(x)));
+Province provinceFromJson(String str) => Province.fromJson(json.decode(str));
 
-Province provinceModelFromJson(String str) =>
-    Province.fromJson(json.decode(str));
-
-String provinceToJson(List<Province> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String provinceToJson(Province data) => json.encode(data.toJson());
 
 class Province {
   Province({
-    this.name,
-    this.code,
-    this.divisionType,
-    this.codename,
-    this.phoneCode,
-    this.districts,
+    this.results,
   });
 
-  String? name;
-  int? code;
-  String? divisionType;
-  String? codename;
-  int? phoneCode;
-  List<dynamic>? districts;
+  List<ProvinceResult>? results;
 
   factory Province.fromJson(Map<String, dynamic> json) => Province(
-        name: json["name"],
-        code: json["code"],
-        divisionType: json["division_type"],
-        codename: json["codename"],
-        phoneCode: json["phone_code"],
-        districts: List<dynamic>.from(json["districts"].map((x) => x)),
+        results: List<ProvinceResult>.from(
+            json["results"].map((x) => ProvinceResult.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "code": code,
-        "division_type": divisionType,
-        "codename": codename,
-        "phone_code": phoneCode,
-        "districts": List<dynamic>.from(districts!.map((x) => x)),
+        "results": List<dynamic>.from(results!.map((x) => x.toJson())),
       };
 }
 
-List<District> districtFromJson(String str) =>
-    List<District>.from(json.decode(str).map((x) => District.fromJson(x)));
+class ProvinceResult {
+  ProvinceResult({
+    this.provinceId,
+    this.provinceName,
+    this.provinceType,
+  });
 
-District districtModelFromJson(String str) =>
-    District.fromJson(json.decode(str));
+  String? provinceId;
+  String? provinceName;
+  String? provinceType;
 
-String districtToJson(List<District> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+  factory ProvinceResult.fromJson(Map<String, dynamic> json) => ProvinceResult(
+        provinceId: json["province_id"],
+        provinceName: json["province_name"],
+        provinceType: json["province_type"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "province_id": provinceId,
+        "province_name": provinceName,
+        "province_type": provinceType,
+      };
+}
+
+District districtFromJson(String str) => District.fromJson(json.decode(str));
+
+String districtToJson(District data) => json.encode(data.toJson());
 
 class District {
   District({
-    this.name,
-    this.code,
-    this.divisionType,
-    this.codename,
-    this.phoneCode,
-    this.districts,
+    this.results,
   });
 
-  String? name;
-  int? code;
-  String? divisionType;
-  String? codename;
-  int? phoneCode;
-  List<dynamic>? districts;
+  List<DistrictResult>? results;
 
   factory District.fromJson(Map<String, dynamic> json) => District(
-        name: json["name"],
-        code: json["code"],
-        divisionType: json["division_type"],
-        codename: json["codename"],
-        phoneCode: json["phone_code"],
-        districts: List<dynamic>.from(json["districts"].map((x) => x)),
+        results: List<DistrictResult>.from(
+            json["results"].map((x) => DistrictResult.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "code": code,
-        "division_type": divisionType,
-        "codename": codename,
-        "phone_code": phoneCode,
-        "districts": List<dynamic>.from(districts!.map((x) => x)),
+        "results": List<dynamic>.from(results!.map((x) => x.toJson())),
       };
 }
 
-List<Ward> wardFromJson(String str) =>
-    List<Ward>.from(json.decode(str).map((x) => Ward.fromJson(x)));
-
-Ward wardModelFromJson(String str) => Ward.fromJson(json.decode(str));
-
-String wardToJson(List<Ward> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
-class Ward {
-  Ward({
-    this.name,
-    this.code,
-    this.divisionType,
-    this.codename,
-    this.districtCode,
+class DistrictResult {
+  DistrictResult({
+    this.districtId,
+    this.districtName,
+    this.districtType,
+    this.lat,
+    this.lng,
+    this.provinceId,
   });
 
-  String? name;
-  int? code;
-  String? divisionType;
-  String? codename;
-  int? districtCode;
+  String? districtId;
+  String? districtName;
+  String? districtType;
+  dynamic lat;
+  dynamic lng;
+  String? provinceId;
 
-  factory Ward.fromJson(Map<String, dynamic> json) => Ward(
-        name: json["name"],
-        code: json["code"],
-        divisionType: json["division_type"],
-        codename: json["codename"],
-        districtCode: json["district_code"],
+  factory DistrictResult.fromJson(Map<String, dynamic> json) => DistrictResult(
+        districtId: json["district_id"],
+        districtName: json["district_name"],
+        districtType: json["district_type"],
+        lat: json["lat"],
+        lng: json["lng"],
+        provinceId: json["province_id"],
       );
 
   Map<String, dynamic> toJson() => {
-        "name": name,
-        "code": code,
-        "division_type": divisionType,
-        "codename": codename,
-        "district_code": districtCode,
+        "district_id": districtId,
+        "district_name": districtName,
+        "district_type": districtType,
+        "lat": lat,
+        "lng": lng,
+        "province_id": provinceId,
+      };
+}
+
+Ward wardFromJson(String str) => Ward.fromJson(json.decode(str));
+
+String wardToJson(Ward data) => json.encode(data.toJson());
+
+class Ward {
+  Ward({
+    this.results,
+  });
+
+  List<WardResult>? results;
+
+  factory Ward.fromJson(Map<String, dynamic> json) => Ward(
+        results: List<WardResult>.from(
+            json["results"].map((x) => WardResult.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "results": List<dynamic>.from(results!.map((x) => x.toJson())),
+      };
+}
+
+class WardResult {
+  WardResult({
+    this.districtId,
+    this.wardId,
+    this.wardName,
+    this.wardType,
+  });
+
+  String? districtId;
+  String? wardId;
+  String? wardName;
+  String? wardType;
+
+  factory WardResult.fromJson(Map<String, dynamic> json) => WardResult(
+        districtId: json["district_id"],
+        wardId: json["ward_id"],
+        wardName: json["ward_name"],
+        wardType: json["ward_type"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "district_id": districtId,
+        "ward_id": wardId,
+        "ward_name": wardName,
+        "ward_type": wardType,
       };
 }
