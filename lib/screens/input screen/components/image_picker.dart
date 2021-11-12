@@ -43,58 +43,68 @@ class _PickImageState extends State<PickImage> {
 
   @override
   Widget build(BuildContext context) {
-    return image.length != 0
-        ? Container(
-            height: 200,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: image.length,
-                itemBuilder: (context, index) {
-                  return Stack(
-                    children: [
-                      Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15)),
-                        margin: EdgeInsets.symmetric(horizontal: 10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image.file(
-                            image[index]!,
-                            width: 150,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            image.length != 0
+                ? Container(
+                    height: 200,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: image.length,
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              Container(
+                                height: 200,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15)),
+                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.file(
+                                    File(
+                                        '/data/user/0/com.example.rentalz_app/app_flutter/image_picker7440357289632883835.jpg'),
+                                    width: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: GestureDetector(
+                                  onTap: () => {image.removeAt(index)},
+                                  child: Container(
+                                    padding: EdgeInsets.all(1),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.blueGrey[100],
+                                    ),
+                                    child: Icon(
+                                      Icons.delete_outlined,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                  )
+                : GestureDetector(
+                    onTap: pickImage,
+                    child: Center(
+                      child: Image.network(
+                        'https://static.thenounproject.com/png/104062-200.png',
                       ),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: GestureDetector(
-                          onTap: () => {image.removeAt(index)},
-                          child: Container(
-                            padding: EdgeInsets.all(1),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.blueGrey[100],
-                            ),
-                            child: Icon(
-                              Icons.delete_outlined,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-          )
-        : GestureDetector(
-            onTap: pickImage,
-            child: Center(
-              child: Image.network(
-                'https://static.thenounproject.com/png/104062-200.png',
-              ),
-            ),
-          );
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
   }
 }

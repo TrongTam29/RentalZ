@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:get/get.dart';
+import 'package:rentalz_app/components/house_widget.dart';
 import 'package:rentalz_app/constants.dart';
+import 'package:rentalz_app/model/house/house_controller.dart';
+import 'package:rentalz_app/model/User/user_controller.dart';
+import 'package:rentalz_app/screens/login%20screen/login_screen.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key? key}) : super(key: key);
@@ -11,6 +15,15 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  HouseController houseController = Get.put(HouseController());
+  UserController userController = Get.put(UserController());
+
+  @override
+  void initState() {
+    super.initState();
+    houseController.findHouseById(userController.userObj.value.id!);
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -31,18 +44,29 @@ class _ProfileState extends State<Profile> {
                       fit: BoxFit.fill,
                     ),
                   ),
+                  Positioned(
+                      top: 50,
+                      left: 20,
+                      child: IconButton(
+                        onPressed: () {
+                          Get.to(LoginScreen());
+                        },
+                        icon: Icon(Icons.logout_outlined),
+                        color: Colors.white,
+                      )),
                   Padding(
                     padding: const EdgeInsets.only(top: 110),
                     child: Align(
                       alignment: Alignment.topCenter,
                       child: RichText(
                         text: TextSpan(
-                            text: 'Timmy Bremer\n',
+                            text: '${userController.userObj.value.name}\n',
                             style: TextStyle(
                                 fontSize: 26, fontWeight: FontWeight.bold),
                             children: [
                               TextSpan(
-                                  text: 'Contact: timmybremer@gmail.com',
+                                  text:
+                                      'Contact: ${userController.userObj.value.email}',
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.normal)),
@@ -72,181 +96,37 @@ class _ProfileState extends State<Profile> {
               ),
               child: Center(
                   child: Text(
-                '5 Post',
+                '${houseController.findHouseByIdList.length} Post',
                 style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               )),
             ),
-            itemInList(size),
-            itemInList(size),
-            itemInList(size),
+            Obx(() {
+              if (houseController.isFindHouseByIdLoading.value)
+                return Center(
+                  heightFactor: 20,
+                  child: CupertinoActivityIndicator(),
+                );
+              else
+                return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: houseController.findHouseByIdList.length,
+                  itemBuilder: (context, index) {
+                    var house = houseController.findHouseByIdList[index];
+                    return houseController.findHouseByIdList.length == 0
+                        ? Center(
+                            child:
+                                Text('You have not posted any house before '),
+                          )
+                        : HouseWidget(house: house, size: size);
+                  },
+                );
+            }),
           ],
         ),
-      ),
-    );
-  }
-
-  Container itemInList(Size size) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      height: size.height * 0.3 + 40,
-      child: Stack(
-        children: [
-          Container(
-            height: size.height * 0.3 - 40,
-            width: size.width * 1,
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                'https://i.pinimg.com/564x/0f/c7/cb/0fc7cbd44f594b1ed219cc3504094260.jpg',
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            child: Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              height: 100,
-              width: size.width * 1 - 20,
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueGrey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white,
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 20,
-                    top: 10,
-                    child: Text(
-                      'Special house mix',
-                      style: TextStyle(
-                          fontSize: 22,
-                          color: kSecondaryColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Positioned(
-                    top: 35,
-                    left: 15,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 15,
-                          backgroundImage: NetworkImage(
-                              'https://i.pinimg.com/236x/d7/5d/22/d75d22e233d069059bb876ed36d1804c.jpg'),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: Text(
-                              'Timmy Bremer',
-                              style: TextStyle(color: kSecondaryColor),
-                            )),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    top: 22,
-                    right: 15,
-                    child: Padding(
-                        padding: EdgeInsets.only(left: 90),
-                        child: Text(
-                          "\$1500 usd",
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: kSecondaryColor,
-                              fontWeight: FontWeight.bold),
-                        )),
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    left: 15,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: kSecondaryColor,
-                        ),
-                        Text(
-                          'House',
-                          style:
-                              TextStyle(fontSize: 14, color: kSecondaryColor),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                      right: 25,
-                      bottom: 10,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.bed_outlined,
-                            color: kSecondaryColor,
-                            size: 20,
-                          ),
-                          Text(
-                            '2  ',
-                            style: TextStyle(color: kSecondaryColor),
-                          ),
-                          Icon(
-                            Icons.bathtub_outlined,
-                            color: kSecondaryColor,
-                            size: 20,
-                          ),
-                          Text(
-                            '2  ',
-                            style: TextStyle(color: kSecondaryColor),
-                          ),
-                          Icon(
-                            Icons.restaurant_outlined,
-                            color: kSecondaryColor,
-                            size: 20,
-                          ),
-                          Text(
-                            '2  ',
-                            style: TextStyle(color: kSecondaryColor),
-                          ),
-                        ],
-                      ))
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            top: 25,
-            left: 25,
-            child: Container(
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color(0xFFD9FFFFFF),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: kSecondaryColor,
-                    ),
-                    Text(
-                      'Los angeles, CA',
-                      style: TextStyle(fontSize: 14, color: kSecondaryColor),
-                    )
-                  ],
-                )),
-          ),
-        ],
       ),
     );
   }

@@ -7,3 +7,5 @@ const kBackgroundColor = Color(0xFFE8EEFA);
 const kSecondaryColor = Color(0xFF195583);
 
 const double kDefaultPadding = 20.0;
+
+const String baseUrl = 'http://192.168.1.36:3000';

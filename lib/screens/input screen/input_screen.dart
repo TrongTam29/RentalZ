@@ -1,9 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rentalz_app/constants.dart';
 import 'package:rentalz_app/model/Address/address_controller.dart';
 import 'package:rentalz_app/model/Address/address_model.dart';
-import 'package:rentalz_app/screens/input%20screen/components/image_picker.dart';
+import 'package:rentalz_app/model/User/user_controller.dart';
+import 'package:rentalz_app/model/house/house_controller.dart';
+import 'package:path/path.dart';
+import 'components/custome_textfield.dart';
 
 class InputScreen extends StatefulWidget {
   InputScreen({Key? key}) : super(key: key);
@@ -22,6 +30,13 @@ class _InputScreenState extends State<InputScreen> {
   int? toilet = 1;
   int? kitchen = 1;
   AddressController addressController = Get.put(AddressController());
+  HouseController houseController = Get.put(HouseController());
+  UserController userController = Get.find();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController adController = TextEditingController();
+  TextEditingController detailController = TextEditingController();
+  List<File> image = [];
   String? province;
   String? district;
   String? ward;
@@ -29,6 +44,32 @@ class _InputScreenState extends State<InputScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future pickImage() async {
+    try {
+      final List<XFile>? image = await ImagePicker().pickMultiImage();
+      if (image == null) return;
+
+      for (var img in image) {
+        print(img);
+        final imagePermanent = await saveImagePermanently(img.path);
+
+        setState(() {
+          this.image.add(imagePermanent);
+          print('This is :$imagePermanent');
+        });
+      }
+    } on PlatformException catch (e) {
+      print('Fail to pick image: $e');
+    }
+  }
+
+  Future<File> saveImagePermanently(String imagePath) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final name = basename(imagePath);
+    final image = File('${directory.path}/$name');
+    return File(imagePath).copy(image.path);
   }
 
   @override
@@ -47,50 +88,15 @@ class _InputScreenState extends State<InputScreen> {
                 width: size.width * 0.9 + 20,
                 child: Column(
                   children: [
-                    ListTile(
-                      minLeadingWidth: 1,
-                      leading: Icon(
-                        Icons.home_rounded,
-                        size: 26,
-                      ),
-                      title: Container(
-                        height: 40,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Name*',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    CustomTextField(
+                      controller: nameController,
+                      icon: Icons.home_rounded,
+                      text: 'Name*',
                     ),
-                    ListTile(
-                      minLeadingWidth: 1,
-                      leading: Icon(
-                        Icons.attach_money_rounded,
-                        size: 26,
-                      ),
-                      title: Container(
-                        height: 40,
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            labelText: 'Prices/month*',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    CustomTextField(
+                        controller: priceController,
+                        icon: Icons.attach_money_rounded,
+                        text: 'Prices/month*'),
                     SizedBox(
                       height: 30,
                     ),
@@ -350,7 +356,7 @@ class _InputScreenState extends State<InputScreen> {
                             items: addressController.provinceList
                                 .map((ProvinceResult value) {
                               return DropdownMenuItem<String>(
-                                value: value.provinceId,
+                                value: value.provinceName,
                                 onTap: () => addressController
                                     .fetchDistrict(value.provinceId!),
                                 child: Text(value.provinceName!),
@@ -395,7 +401,7 @@ class _InputScreenState extends State<InputScreen> {
                             items: addressController.districtList
                                 .map((DistrictResult value) {
                               return DropdownMenuItem<String>(
-                                value: value.districtId,
+                                value: value.districtName,
                                 onTap: () => addressController
                                     .fetchWard(value.districtId!),
                                 child: Text(value.districtName!),
@@ -440,7 +446,7 @@ class _InputScreenState extends State<InputScreen> {
                             items: addressController.wardList
                                 .map((WardResult value) {
                               return DropdownMenuItem<String>(
-                                value: value.wardId,
+                                value: value.wardName,
                                 child: Text(value.wardName!),
                               );
                             }).toList(),
@@ -448,33 +454,73 @@ class _InputScreenState extends State<InputScreen> {
                         ),
                       ),
                     ),
-                    ListTile(
-                      minLeadingWidth: 1,
-                      leading: Icon(
-                        Icons.location_on,
-                        size: 26,
-                      ),
-                      title: Container(
-                        height: 40,
-                        child: TextFormField(
-                          cursorColor: kSecondaryColor,
-                          decoration: InputDecoration(
-                            labelText: 'Address*',
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    CustomTextField(
+                        controller: adController,
+                        icon: Icons.location_on,
+                        text: 'Address*'),
                     SizedBox(
                       height: 30,
                     ),
-                    PickImage(),
+                    image.length != 0
+                        ? Container(
+                            height: 200,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: image.length,
+                                itemBuilder: (context, index) {
+                                  return Stack(
+                                    children: [
+                                      Container(
+                                        height: 200,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15)),
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: Image.file(
+                                            image[index],
+                                            width: 150,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              image.removeAt(index);
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(1),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.blueGrey[100],
+                                            ),
+                                            child: Icon(
+                                              Icons.delete_outlined,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                          )
+                        : GestureDetector(
+                            onTap: pickImage,
+                            child: Center(
+                              child: Image.network(
+                                'https://static.thenounproject.com/png/104062-200.png',
+                              ),
+                            ),
+                          ),
                     SizedBox(
                       height: 30,
                     ),
@@ -482,6 +528,7 @@ class _InputScreenState extends State<InputScreen> {
                       minLeadingWidth: 1,
                       leading: Icon(Icons.info_rounded),
                       title: TextFormField(
+                        controller: detailController,
                         minLines: 3,
                         maxLines: 6,
                         keyboardType: TextInputType.multiline,
@@ -503,7 +550,56 @@ class _InputScreenState extends State<InputScreen> {
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 20),
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          List<String> imageString = [];
+                          for (var img in image) {
+                            String cutImage =
+                                img.toString().replaceAll('File: ', '');
+
+                            imageString.add(
+                                cutImage.substring(1, cutImage.length - 1));
+                            print('string: $cutImage');
+                          }
+                          var address = adController.text +
+                              ', ' +
+                              ward! +
+                              ', ' +
+                              district!;
+                          houseController
+                              .postHouse(
+                                  nameController.text,
+                                  priceController.text,
+                                  kindDropdown!,
+                                  province!,
+                                  address,
+                                  furniture!,
+                                  bedroom!,
+                                  toilet!,
+                                  kitchen!,
+                                  imageString,
+                                  detailController.text,
+                                  userController.userObj.value.id!)
+                              .then((value) => {
+                                    if (value == true)
+                                      {
+                                        print('value is $value'),
+                                        Get.snackbar(
+                                          'Post Successfull',
+                                          '${nameController.text} has posted',
+                                          snackPosition: SnackPosition.TOP,
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      }
+                                    else
+                                      {
+                                        print('value is $value'),
+                                        Get.snackbar('Post Fail',
+                                            '${nameController.text} has not posted',
+                                            snackPosition: SnackPosition.TOP,
+                                            backgroundColor: Colors.red),
+                                      }
+                                  });
+                        },
                         child: Text(
                           'Post',
                           style: TextStyle(fontSize: 16),
