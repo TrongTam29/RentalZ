@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,14 +25,6 @@ class _HomeState extends State<Home> {
     super.initState();
     print('User is ${userController.userObj.value.email}');
     houseController.fetchHouse();
-  }
-
-  findUser(int id) async {
-    userController.findUser(id).then((value) {
-      setState(() {
-        user = value;
-      });
-    });
   }
 
   @override
@@ -67,10 +61,13 @@ class _HomeState extends State<Home> {
                   Container(
                     padding: EdgeInsets.only(left: 20, top: 15),
                     child: CircleAvatar(
-                      radius: 25,
-                      backgroundImage: NetworkImage(
-                          'https://i.pinimg.com/236x/d7/5d/22/d75d22e233d069059bb876ed36d1804c.jpg'),
-                    ),
+                        radius: 25,
+                        backgroundImage:
+                            userController.userObj.value.image != null
+                                ? FileImage(
+                                    File(userController.userObj.value.image!))
+                                : AssetImage('assets/images/avatar_user.jpg')
+                                    as ImageProvider),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -111,7 +108,10 @@ class _HomeState extends State<Home> {
                     itemBuilder: (context, index) {
                       var house = houseController.houseList[index];
 
-                      return HouseWidget(house: house, size: size);
+                      return HouseWidget(
+                        house: house,
+                        size: size,
+                      );
                     },
                   );
               })

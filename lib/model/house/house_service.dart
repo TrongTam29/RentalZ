@@ -18,6 +18,17 @@ class HouseService {
     }
   }
 
+  static Future<http.Response?> deleteHouse(int id) async {
+    var response = await client.delete(
+      Uri.parse('$baseUrl/house/delete-house?id=$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    return response;
+  }
+
   static Future<http.Response?> postHouse(
       String name,
       String price,
@@ -66,6 +77,45 @@ class HouseService {
     } else {
       return null;
     }
+  }
+
+  static Future<http.Response?> updateHouse(
+      int id,
+      String name,
+      String price,
+      String type,
+      String city,
+      String address,
+      String furnitureType,
+      int bedroom,
+      int toilet,
+      int diningroom,
+      List<String> image,
+      String detail,
+      int userId) async {
+    Map data = {
+      "name": name,
+      "price": price,
+      "type": type,
+      "city": city,
+      "address": address,
+      "furnitureType": furnitureType,
+      "bedroom": bedroom,
+      "toilet": toilet,
+      "diningroom": diningroom,
+      "image": image,
+      "detail": detail,
+      "userId": userId,
+    };
+    var body = json.encode(data);
+    http.Response response =
+        await client.put(Uri.parse('$baseUrl/house/update-house/$id'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: body);
+
+    return response;
   }
 
   static Future<List<House>?> findById(int id) async {

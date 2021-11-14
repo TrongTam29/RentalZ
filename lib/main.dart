@@ -10,6 +10,7 @@ import 'package:rentalz_app/screens/login%20screen/login_screen.dart';
 import 'package:rentalz_app/screens/profile/profile.dart';
 import 'package:rentalz_app/screens/register%20screen/register.dart';
 import 'package:rentalz_app/screens/search%20screen/search_screen.dart';
+import 'package:rentalz_app/screens/update%20screen/update_screen.dart';
 
 void main() {
   runApp(const MyApp());

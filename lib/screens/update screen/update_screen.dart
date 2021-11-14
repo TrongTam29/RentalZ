@@ -11,15 +11,18 @@ import 'package:rentalz_app/model/Address/address_model.dart';
 import 'package:rentalz_app/model/User/user_controller.dart';
 import 'package:rentalz_app/model/house/house_controller.dart';
 import 'package:path/path.dart';
+import 'package:rentalz_app/model/house/house_model.dart';
 
-class InputScreen extends StatefulWidget {
-  InputScreen({Key? key}) : super(key: key);
+class UpdateScreen extends StatefulWidget {
+  UpdateScreen({Key? key, required this.house}) : super(key: key);
+
+  final House house;
 
   @override
-  _InputScreenState createState() => _InputScreenState();
+  _UpdateScreenState createState() => _UpdateScreenState();
 }
 
-class _InputScreenState extends State<InputScreen> {
+class _UpdateScreenState extends State<UpdateScreen> {
   List kindOfHouse = ['House', 'Flat', 'Bungalow', 'Apartment', 'Official'];
   List quantityRooms = [0, 1, 2, 3, 4, 5];
   List furniturelist = [
@@ -28,7 +31,7 @@ class _InputScreenState extends State<InputScreen> {
     'Part Furnished',
     ' Unfurnished'
   ];
-  String furniture = 'Furniture type';
+  String? furniture;
   String? kindDropdown;
   int? bedroom = 1;
   int? toilet = 1;
@@ -39,43 +42,40 @@ class _InputScreenState extends State<InputScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController adController = TextEditingController();
-  TextEditingController detailController =
-      TextEditingController(text: 'No description available');
-  List<File> image = [];
+  TextEditingController detailController = TextEditingController();
+
   String? province;
   String? district;
   String? ward;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  List<File> image = [];
   @override
   void initState() {
+    initAddress(widget.house);
+    initValue(widget.house);
     super.initState();
   }
 
-  Future pickImage() async {
-    try {
-      final List<XFile>? image = await ImagePicker().pickMultiImage();
-      if (image == null) return;
-
-      for (var img in image) {
-        print(img);
-        final imagePermanent = await saveImagePermanently(img.path);
-
-        setState(() {
-          this.image.add(imagePermanent);
-          print('This is :$imagePermanent');
-        });
-      }
-    } on PlatformException catch (e) {
-      print('Fail to pick image: $e');
-    }
+  initAddress(House house) {
+    var address = house.address!.split(", ");
+    setState(() {
+      adController.text = address.first;
+    });
   }
 
-  Future<File> saveImagePermanently(String imagePath) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final name = basename(imagePath);
-    final image = File('${directory.path}/$name');
-    return File(imagePath).copy(image.path);
+  initValue(House house) {
+    setState(() {
+      furniture = house.furnitureType;
+      kindDropdown = house.type;
+      bedroom = house.bedroom;
+      toilet = house.toilet;
+      kitchen = house.diningroom;
+      province = house.city;
+      nameController.text = house.name!;
+      priceController.text = house.price!;
+      detailController.text = house.detail!;
+    });
   }
 
   String? validateRequire(value) {
@@ -89,7 +89,7 @@ class _InputScreenState extends State<InputScreen> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('Add Home')),
+        title: Center(child: Text('Update Information')),
       ),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -565,69 +565,6 @@ class _InputScreenState extends State<InputScreen> {
                       SizedBox(
                         height: 30,
                       ),
-                      image.length != 0
-                          ? Container(
-                              height: 200,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: image.length,
-                                  itemBuilder: (context, index) {
-                                    return Stack(
-                                      children: [
-                                        Container(
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(15)),
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                            child: Image.file(
-                                              image[index],
-                                              width: 150,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: 0,
-                                          top: 0,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                image.removeAt(index);
-                                              });
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.all(1),
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Colors.blueGrey[100],
-                                              ),
-                                              child: Icon(
-                                                Icons.delete_outlined,
-                                                size: 28,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                            )
-                          : GestureDetector(
-                              onTap: pickImage,
-                              child: Center(
-                                child: Image.network(
-                                  'https://static.thenounproject.com/png/104062-200.png',
-                                ),
-                              ),
-                            ),
-                      SizedBox(
-                        height: 30,
-                      ),
                       ListTile(
                         minLeadingWidth: 1,
                         leading: Icon(Icons.info_rounded),
@@ -731,7 +668,7 @@ class _InputScreenState extends State<InputScreen> {
                   ),
                   title: (furniture == 'Furniture type')
                       ? Text('$furniture is empty')
-                      : Text(furniture)),
+                      : Text(furniture!)),
               ListTile(
                 leading: Text(
                   'Bed room:',
@@ -772,7 +709,7 @@ class _InputScreenState extends State<InputScreen> {
                   'Image:',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                title: Text('${image.length.toString()} images'),
+                title: Text('${widget.house.image!.length.toString()} images'),
               ),
               ListTile(
                 leading: Text(
@@ -798,27 +735,29 @@ class _InputScreenState extends State<InputScreen> {
           }
 
           houseController
-              .postHouse(
+              .updateHouse(
+                  widget.house.id!,
                   nameController.text,
                   priceController.text,
                   kindDropdown!,
                   province!,
                   address,
-                  furniture,
+                  furniture!,
                   bedroom!,
                   toilet!,
                   kitchen!,
-                  imageString,
+                  widget.house.image!,
                   detailController.text,
-                  userController.userObj.value.id!)
+                  widget.house.userId!)
               .then((value) => {
                     print('value is $value'),
-                    Get.snackbar(
-                        'Post Successfull', '${nameController.text} has posted',
+                    Get.snackbar('Update Successfull',
+                        '${nameController.text} has updated',
                         snackPosition: SnackPosition.TOP,
                         backgroundColor: Colors.green[100],
                         animationDuration: Duration(seconds: 2)),
                   });
+          Get.back();
           Get.back();
         });
   }

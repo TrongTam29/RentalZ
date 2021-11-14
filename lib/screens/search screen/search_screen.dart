@@ -18,14 +18,14 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   List kindOfHouse = [
-    'none',
+    'None',
     'House',
     'Flat',
     'Bungalow',
     'Apartment',
     'Official'
   ];
-  List furniturelist = ['none', 'Furnished', 'Part Furnished', ' Unfurnished'];
+  List furniturelist = ['None', 'Furnished', 'Part Furnished', ' Unfurnished'];
   AddressController addressController = Get.put(AddressController());
   HouseController houseController = Get.put(HouseController());
   String? province;
@@ -235,21 +235,22 @@ class _SearchScreenState extends State<SearchScreen> {
                         Container(
                           child: ElevatedButton(
                             onPressed: () {
-                              if (kindDropdown == 'none') {
+                              if (kindDropdown == 'None') {
                                 setState(() {
                                   kindDropdown = null;
                                 });
                               }
-                              if (furniture == 'none') {
+                              if (furniture == 'None') {
                                 setState(() {
                                   furniture = null;
                                 });
                               }
+                              houseController.fillterHouseList.clear();
                               houseController.fillterHouse(kindDropdown ?? '',
                                   furniture ?? '', province ?? '');
                             },
                             child: Text(
-                              'Fillter',
+                              'Filter',
                               style: TextStyle(fontSize: 16),
                             ),
                             style: ButtonStyle(
@@ -274,7 +275,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemCount: houseController.fillterHouseList.length,
                     itemBuilder: (context, index) {
                       var house = houseController.houseList[index];
-                      return HouseWidget(house: house, size: size);
+                      return HouseWidget(
+                        house: house,
+                        size: size,
+                      );
                     },
                   ),
                 ],

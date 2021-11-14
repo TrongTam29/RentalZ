@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rentalz_app/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:rentalz_app/model/User/user_controller.dart';
 
 class HouseDetail extends StatefulWidget {
   HouseDetail(
@@ -47,7 +48,9 @@ class _HouseDetailState extends State<HouseDetail> {
   String? createAt;
   int _current = 0;
   final CarouselController _controller = CarouselController();
-  @override
+  UserController userController = Get.put(UserController());
+  List<String> nullImage = ['assets/images/no-image.png'];
+
   @override
   void initState() {
     super.initState();
@@ -83,16 +86,25 @@ class _HouseDetailState extends State<HouseDetail> {
                         _current = index;
                       });
                     }),
-                items: widget.image
-                    .map((item) => Container(
-                          child: Image.file(
-                            File(item),
-                            width: size.width,
-                            height: size.height,
-                            fit: BoxFit.cover,
-                          ),
-                        ))
-                    .toList(),
+                items: (widget.image.isNotEmpty)
+                    ? widget.image
+                        .map((item) => Container(
+                              child: Image.file(
+                                File(item),
+                                width: size.width,
+                                height: size.height,
+                                fit: BoxFit.cover,
+                              ),
+                            ))
+                        .toList()
+                    : nullImage
+                        .map((e) => Container(
+                              child: Image.asset(
+                                e,
+                                fit: BoxFit.fill,
+                              ),
+                            ))
+                        .toList(),
               ),
               Positioned(
                 top: 280,
@@ -174,12 +186,16 @@ class _HouseDetailState extends State<HouseDetail> {
                       Positioned(
                         top: 30,
                         left: 20,
-                        child: Text(
-                          widget.name,
-                          style: TextStyle(
-                              fontSize: 24,
-                              color: kSecondaryColor,
-                              fontWeight: FontWeight.bold),
+                        child: Container(
+                          width: 280,
+                          child: Text(
+                            widget.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 24,
+                                color: kSecondaryColor,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                       Positioned(
@@ -194,15 +210,40 @@ class _HouseDetailState extends State<HouseDetail> {
                         ),
                       ),
                       Positioned(
-                        top: 20,
+                        top: 35,
                         right: 15,
-                        child: Container(
-                          padding: EdgeInsets.only(left: 20, top: 15),
-                          child: CircleAvatar(
-                            radius: 23,
-                            backgroundImage: NetworkImage(
-                                'https://i.pinimg.com/236x/d7/5d/22/d75d22e233d069059bb876ed36d1804c.jpg'),
-                          ),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blueGrey.withOpacity(0.2),
+                                    spreadRadius: 1,
+                                    blurRadius: 7,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: userController
+                                              .userObj.value.image !=
+                                          null
+                                      ? FileImage(File(
+                                          userController.userObj.value.image!))
+                                      : AssetImage(
+                                              'assets/images/avatar_user.jpg')
+                                          as ImageProvider),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              userController.userObj.value.name!,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: kSecondaryColor),
+                            ),
+                          ],
                         ),
                       ),
                       Positioned(

@@ -68,6 +68,49 @@ class HouseController extends GetxController {
     }
   }
 
+  Future<bool?> deleteHouse(int id) async {
+    var response = await HouseService.deleteHouse(id);
+
+    if (response!.statusCode == 201) {
+      return true;
+    } else
+      return false;
+  }
+
+  Future<bool?> updateHouse(
+      int id,
+      String name,
+      String price,
+      String type,
+      String city,
+      String address,
+      String furnitureType,
+      int bedroom,
+      int toilet,
+      int diningroom,
+      List<String> image,
+      String detail,
+      int userId) async {
+    var response = await HouseService.updateHouse(
+        id,
+        name,
+        price,
+        type,
+        city,
+        address,
+        furnitureType,
+        bedroom,
+        toilet,
+        diningroom,
+        image,
+        detail,
+        userId);
+    if (response!.statusCode == 201) {
+      return true;
+    } else
+      return false;
+  }
+
   Future<List<House>?> findHouseById(int id) async {
     try {
       isFindHouseByIdLoading(true);
@@ -81,14 +124,14 @@ class HouseController extends GetxController {
     }
   }
 
-  Future<List<House>?> fillterHouse(
+  Future<List<House>> fillterHouse(
       String type, String furniture, String city) async {
     try {
       isFillterHouseLoading(true);
       var houses = await HouseService.fillter(type, furniture, city);
-      if (houses != null) {
-        fillterHouseList.value = houses;
-      }
+
+      fillterHouseList.value = houses!;
+
       return fillterHouseList;
     } finally {
       isFillterHouseLoading(false);

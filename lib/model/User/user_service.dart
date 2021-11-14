@@ -29,6 +29,17 @@ class UserService {
       return null;
   }
 
+  static Future<http.Response?> updateImage(int id, String image) async {
+    var response = await client.patch(
+      Uri.parse('$baseUrl/user/update-image/$id?image=$image'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    print('update image');
+    return response;
+  }
+
   static Future<http.Response?> createUser(
       String name, String email, String password) async {
     Map data = {"name": name, "email": email, "password": password};

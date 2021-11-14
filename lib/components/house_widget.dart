@@ -2,13 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rentalz_app/constants.dart';
+import 'package:rentalz_app/model/User/user_controller.dart';
+import 'package:rentalz_app/model/User/user_model.dart';
+import 'package:rentalz_app/model/house/house_controller.dart';
 import 'package:rentalz_app/model/house/house_model.dart';
 
 import 'package:rentalz_app/screens/detail%20screen/house_detail.dart';
 
-class HouseWidget extends StatelessWidget {
+class HouseWidget extends StatefulWidget {
   const HouseWidget({
     Key? key,
     required this.house,
@@ -19,49 +21,76 @@ class HouseWidget extends StatelessWidget {
   final Size size;
 
   @override
+  State<HouseWidget> createState() => _HouseWidgetState();
+}
+
+HouseController houseController = Get.put(HouseController());
+UserController userController = Get.put(UserController());
+User? user;
+
+class _HouseWidgetState extends State<HouseWidget> {
+  @override
+  void initState() {
+    findUser(widget.house.userId!);
+    super.initState();
+  }
+
+  findUser(int id) async {
+    userController.findUser(id).then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Get.to(HouseDetail(
-          name: house.name!,
-          type: house.type!,
-          city: house.city!,
-          address: house.address!,
-          furnitureType: house.furnitureType!,
-          bedroom: house.bedroom!,
-          toilet: house.toilet!,
-          diningroom: house.diningroom!,
-          image: house.image!,
-          detail: house.detail!,
-          userId: house.userId!,
-          createdAt: house.createdAt!,
-          price: house.price!,
+          name: widget.house.name!,
+          type: widget.house.type!,
+          city: widget.house.city!,
+          address: widget.house.address!,
+          furnitureType: widget.house.furnitureType!,
+          bedroom: widget.house.bedroom!,
+          toilet: widget.house.toilet!,
+          diningroom: widget.house.diningroom!,
+          image: widget.house.image!,
+          detail: widget.house.detail!,
+          userId: widget.house.userId!,
+          createdAt: widget.house.createdAt!,
+          price: widget.house.price!,
         ));
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 10),
-        height: size.height * 0.3 + 40,
+        height: widget.size.height * 0.3 + 40,
         child: Stack(
           children: [
             Container(
-              height: size.height * 0.3 - 40,
-              width: size.width * 1,
+              height: widget.size.height * 0.3 - 40,
+              width: widget.size.width * 1,
               margin: EdgeInsets.only(top: 10, left: 10, right: 10),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.file(
-                  File(house.image!.first),
-                  width: 150,
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(20),
+                  child: (widget.house.image!.isEmpty)
+                      ? Image.asset(
+                          'assets/images/no-image.png',
+                          fit: BoxFit.fill,
+                        )
+                      : Image.file(
+                          File(widget.house.image!.first),
+                          width: 150,
+                          fit: BoxFit.cover,
+                        )),
             ),
             Positioned(
               bottom: 0,
               child: Container(
                 margin: EdgeInsets.only(left: 10, right: 10),
                 height: 100,
-                width: size.width * 1 - 20,
+                width: widget.size.width * 1 - 20,
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
@@ -79,12 +108,16 @@ class HouseWidget extends StatelessWidget {
                     Positioned(
                       left: 20,
                       top: 10,
-                      child: Text(
-                        house.name!,
-                        style: TextStyle(
-                            fontSize: 22,
-                            color: kSecondaryColor,
-                            fontWeight: FontWeight.bold),
+                      child: Container(
+                        width: 250,
+                        child: Text(
+                          widget.house.name!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 22,
+                              color: kSecondaryColor,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                     Positioned(
@@ -93,14 +126,18 @@ class HouseWidget extends StatelessWidget {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            radius: 15,
-                            backgroundImage: NetworkImage(
-                                'https://i.pinimg.com/236x/d7/5d/22/d75d22e233d069059bb876ed36d1804c.jpg'),
-                          ),
+                              radius: 15,
+                              backgroundImage: userController
+                                          .userObj.value.image !=
+                                      null
+                                  ? FileImage(
+                                      File(userController.userObj.value.image!))
+                                  : AssetImage('assets/images/avatar_user.jpg')
+                                      as ImageProvider),
                           Padding(
                               padding: EdgeInsets.only(left: 10),
                               child: Text(
-                                "user!.name!",
+                                user!.name!,
                                 style: TextStyle(color: kSecondaryColor),
                               )),
                         ],
@@ -112,7 +149,7 @@ class HouseWidget extends StatelessWidget {
                       child: Padding(
                           padding: EdgeInsets.only(left: 90),
                           child: Text(
-                            "\$ ${house.price} usd",
+                            "\$ ${widget.house.price} usd",
                             style: TextStyle(
                                 fontSize: 24,
                                 color: kSecondaryColor,
@@ -129,7 +166,7 @@ class HouseWidget extends StatelessWidget {
                             color: kSecondaryColor,
                           ),
                           Text(
-                            house.type!,
+                            widget.house.type!,
                             style:
                                 TextStyle(fontSize: 14, color: kSecondaryColor),
                           ),
@@ -147,7 +184,7 @@ class HouseWidget extends StatelessWidget {
                               size: 20,
                             ),
                             Text(
-                              '${house.bedroom} ',
+                              '${widget.house.bedroom} ',
                               style: TextStyle(color: kSecondaryColor),
                             ),
                             Icon(
@@ -156,7 +193,7 @@ class HouseWidget extends StatelessWidget {
                               size: 20,
                             ),
                             Text(
-                              '${house.toilet}  ',
+                              '${widget.house.toilet}  ',
                               style: TextStyle(color: kSecondaryColor),
                             ),
                             Icon(
@@ -165,7 +202,7 @@ class HouseWidget extends StatelessWidget {
                               size: 20,
                             ),
                             Text(
-                              '${house.diningroom}  ',
+                              '${widget.house.diningroom}  ',
                               style: TextStyle(color: kSecondaryColor),
                             ),
                           ],
@@ -190,7 +227,7 @@ class HouseWidget extends StatelessWidget {
                         color: kSecondaryColor,
                       ),
                       Text(
-                        house.city!,
+                        widget.house.city!,
                         style: TextStyle(fontSize: 14, color: kSecondaryColor),
                       )
                     ],

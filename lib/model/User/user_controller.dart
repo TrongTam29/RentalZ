@@ -7,11 +7,6 @@ class UserController extends GetxController {
   var isLoading = true.obs;
   Rx<User> userObj = User().obs;
   var isRegisterLoading = true.obs;
-  // var isPostUserLoading = true.obs;
-  // var isFillterUserLoading = true.obs;
-  // RxList<User> UserList = RxList();
-  // RxList<User> findUserList = RxList();
-  // RxList<User> fillterUserList = RxList();
 
   Future<User?> findUser(int id) async {
     try {
@@ -41,5 +36,13 @@ class UserController extends GetxController {
       return true;
     } else
       return false;
+  }
+
+  Future<void> updateImage(int id, String image) async {
+    await UserService.updateImage(id, image);
+    var user = await UserService.findUser(id);
+    if (user != null) {
+      userObj.value = user;
+    }
   }
 }
